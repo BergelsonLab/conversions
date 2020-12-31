@@ -7,6 +7,6 @@ A shell script that is mainly a wrapper around an awk script. It extracts annota
 
 #### use_pmypi.py
 
-A python script that will convert a cha file to an eaf. It's requirements are in the requirements.txt file.
+A python script that will convert a cha file to an eaf. It's requirements are in the requirements.txt file. First, install the dependencies with ```pip install -r requirements.txt```
 
 
