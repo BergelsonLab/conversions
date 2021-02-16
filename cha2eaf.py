@@ -202,7 +202,7 @@ def cha2eaf(inpf, outf):
                 line.onset += 1
                 line.offset -= 1
     
-        elif line.is_clan_comment or 'xcom' in line.line:
+        elif line.is_clan_comment or line.is_user_comment or 'xcom' in line.line:
             line.parent_tier = line.tier if line.tier in eaf.get_tier_names() else current_tier
             line.tier, line.content = line.line.strip().split('\t')
             add_ref_annotation(line, eaf)
