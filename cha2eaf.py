@@ -178,6 +178,8 @@ def cha2eaf(inpf, outf):
 
     # Processing the rest of the file after the header.
     end = cha.get_header()[-1].index
+
+    current_tier = ''
     # The plus one below starts the iteration right after the last header line.
     for line in cha.line_map[end+1:]:
         # This is a tier line.
@@ -186,6 +188,8 @@ def cha2eaf(inpf, outf):
             if line.tier not in eaf.get_tier_names():
                 eaf.add_tier(line.tier)
 
+            current_tier = line.tier
+
         elif line.is_paus_block_delimiter or line.is_conv_block_delimiter:
             line.tier = BLOCK
             line.content = line.line.strip()
@@ -193,15 +197,25 @@ def cha2eaf(inpf, outf):
             # pympi does not like onset and offset being the same...
             if line.onset == 0 and line.offset == 0:
                 line.onset, line.offset = 0, 1
+
+            else:
+                line.onset += 1
+                line.offset -= 1
     
-        elif line.is_clan_comment:
-            line.parent_tier = line.tier
+        elif line.is_clan_comment or 'xcom' in line.line:
+            line.parent_tier = line.tier if line.tier in eaf.get_tier_names() else current_tier
             line.tier, line.content = line.line.strip().split('\t')
             add_ref_annotation(line, eaf)
             continue
 
         elif line.xdb_line:
             line.tier = XDB
+
+            # Usually XDB lines do get parent_tier set from pyclan, but if there are 
+            # other lines in between, that does not appear to be the case. So we are 
+            # setting it here.
+            if not line.parent_tier:
+                line.parent_tier = current_tier
             add_ref_annotation(line, eaf)
             continue
 
